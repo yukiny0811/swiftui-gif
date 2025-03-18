@@ -4,27 +4,32 @@ public struct GIFImage: UIViewRepresentable {
   private let data: Data?
   private let name: String?
   private let repetitions: Int?
+  private let bundle: Bundle
   private let onComplete: (() -> Void)?
   
   public init(
     data: Data,
     repetitions: Int? = nil,
+    bundle: Bundle = .main,
     onComplete: (() -> Void)? = nil
   ) {
     self.data = data
     self.name = nil
     self.repetitions = repetitions
+    self.bundle = bundle
     self.onComplete = onComplete
   }
   
   public init(
     name: String,
     repetitions: Int? = nil,
+    bundle: Bundle = .main,
     onComplete: (() -> Void)? = nil
   ) {
     self.data = nil
     self.name = name
     self.repetitions = repetitions
+    self.bundle = bundle
     self.onComplete = onComplete
   }
   
@@ -40,7 +45,7 @@ public struct GIFImage: UIViewRepresentable {
     if let data = data {
       uiView.updateGIF(data: data, repetitions: repetitions, onComplete: onComplete)
     } else {
-      uiView.updateGIF(name: name ?? "", repetitions: repetitions, onComplete: onComplete)
+      uiView.updateGIF(name: name ?? "", repetitions: repetitions, bundle: bundle,  onComplete: onComplete)
     }
   }
 }
@@ -107,12 +112,13 @@ public class UIGIFImage: UIView {
   func updateGIF(
     name: String,
     repetitions: Int? = nil,
+    bundle: Bundle,
     onComplete: (() -> Void)? = nil
   ) {
     self.repetitions = repetitions
     self.onComplete = onComplete
     updateWithImage {
-      UIImage.gifImage(name: name)
+      UIImage.gifImage(name: name, bundle: bundle)
     }
   }
   
@@ -179,8 +185,8 @@ public extension UIImage {
 //                                     duration: Double(duration) / 1000.0)
     }
     
-    class func gifImage(name: String) -> AnimationImages? {
-        guard let url = Bundle.main.url(forResource: name, withExtension: "gif"),
+    class func gifImage(name: String, bundle: Bundle) -> AnimationImages? {
+        guard let url = bundle.url(forResource: name, withExtension: "gif"),
               let data = try? Data(contentsOf: url)
         else {
             return nil
